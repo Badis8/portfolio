@@ -29,19 +29,18 @@ $(document).ready(function () {
         });
     });
 
-    // smooth scrolling
+  
     $('a[href*="#"]').on('click', function (e) {
         e.preventDefault();
         $('html, body').animate({
             scrollTop: $($(this).attr('href')).offset().top,
         }, 500, 'linear')
     });
+ 
+    $("#contact-form").submit(function (  event  ) {
+        emailjs.init("DUaZB7loO1UKFsBHg");
 
-    // <!-- emailjs to mail contact form data -->
-    $("#contact-form").submit(function (event) {
-        emailjs.init("user_TTDmetQLYgWCLzHTDgqxm");
-
-        emailjs.sendForm('contact_service', 'template_contact', '#contact-form')
+        emailjs.sendForm('service_q7kdc98', 'template_l0z745o', '#contact-form')
             .then(function (response) {
                 console.log('SUCCESS!', response.status, response.text);
                 document.getElementById("contact-form").reset();
@@ -52,39 +51,29 @@ $(document).ready(function () {
             });
         event.preventDefault();
     });
-    // <!-- emailjs to mail contact form data -->
+ 
 
 });
 
-document.addEventListener('visibilitychange',
-    function () {
-        if (document.visibilityState === "visible") {
-            document.title = "Portfolio | Jigar Sable";
-            $("#favicon").attr("href", "assets/images/favicon.png");
-        }
-        else {
-            document.title = "Come Back To Portfolio";
-            $("#favicon").attr("href", "assets/images/favhand.png");
-        }
-    });
+ 
 
 
-// <!-- typed js effect starts -->
+ 
 var typed = new Typed(".typing-text", {
-    strings: ["frontend development", "backend development", "web designing", "android development", "web development"],
+    strings: ["frontend development", "backend development", "web designing" , "web development"],
     loop: true,
     typeSpeed: 50,
     backSpeed: 25,
     backDelay: 500,
 });
-// <!-- typed js effect ends -->
+ 
 
 async function fetchData(type = "skills") {
     let response
     type === "skills" ?
         response = await fetch("skills.json")
         :
-        response = await fetch("./projects/projects.json")
+        response = await fetch("projects/projects.json")
     const data = await response.json();
     return data;
 }
@@ -107,26 +96,34 @@ function showSkills(skills) {
 function showProjects(projects) {
     let projectsContainer = document.querySelector("#work .box-container");
     let projectHTML = "";
-    projects.slice(0, 10).filter(project => project.category != "android").forEach(project => {
-        projectHTML += `
-        <div class="box tilt">
-      <img draggable="false" src="/assets/images/projects/${project.image}.png" alt="project" />
-      <div class="content">
-        <div class="tag">
-        <h3>${project.name}</h3>
-        </div>
-        <div class="desc">
-          <p>${project.desc}</p>
-          <div class="btns">
-            <a href="${project.links.view}" class="btn" target="_blank"><i class="fas fa-eye"></i> View</a>
-            <a href="${project.links.code}" class="btn" target="_blank">Code <i class="fas fa-code"></i></a>
-          </div>
-        </div>
-      </div>
-    </div>`
-    });
-    projectsContainer.innerHTML = projectHTML;
 
+    projects   
+        .slice(0, 10)
+        .filter(project => project.category !== "android")
+        .forEach(project => {
+            const codeLink = project.links && project.links.code 
+                ? `<a href="${project.links.code}" class="btn" target="_blank">Code <i class="fas fa-code"></i></a>` 
+                : "";
+
+            projectHTML += `
+                <div class="box tilt">
+                    <img draggable="false" src="/assets/images/projects/${project.image}.png" alt="project" />
+                    <div class="content">
+                        <div class="tag">
+                            <h3>${project.name}</h3>
+                        </div>
+                        <div class="desc">
+                            <p>${project.desc}</p>
+                            <div class="btns">
+                                ${codeLink}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+    projectsContainer.innerHTML = projectHTML;
+ 
     // <!-- tilt js effect starts -->
     VanillaTilt.init(document.querySelectorAll(".tilt"), {
         max: 15,
@@ -146,13 +143,21 @@ function showProjects(projects) {
 
 }
 
-fetchData().then(data => {
-    showSkills(data);
-});
+ 
 
-fetchData("projects").then(data => {
-    showProjects(data);
-});
+fetch("projects/projects.json")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json(); // Parse JSON data
+  })
+  .then(data => {
+    showProjects(data); // Pass the data to your showProjects function
+  })
+  .catch(error => {
+    console.error('Error fetching projects:', error); // Handle errors
+  });
 
 // <!-- tilt js effect starts -->
 VanillaTilt.init(document.querySelectorAll(".tilt"), {
@@ -190,20 +195,35 @@ document.onkeydown = function (e) {
     }
 }
 
-// Start of Tawk.to Live Chat
-var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
-(function () {
-    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
-    s1.async = true;
-    s1.src = 'https://embed.tawk.to/60df10bf7f4b000ac03ab6a8/1f9jlirg6';
-    s1.charset = 'UTF-8';
-    s1.setAttribute('crossorigin', '*');
-    s0.parentNode.insertBefore(s1, s0);
-})();
-// End of Tawk.to Live Chat
+ 
+ 
+function downloadFile() {
+    // Content of the file
+    const fileContent = "Hello, this is the content of your file!";
+    
+    // Create a Blob with the content (this can be a text file, JSON, etc.)
+    const blob = new Blob([fileContent], { type: 'text/plain' });
+    
+    // Create a link element
+    const link = document.createElement('a');
+    
+    // Create a URL for the Blob
+    const url = URL.createObjectURL(blob);
+    
+    // Set the download attribute to specify the file name
+    link.href = url;
+    link.download = "example.txt";
+    
+    // Append the link to the document, trigger the click to start the download, and remove the link
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Clean up by revoking the Blob URL
+    URL.revokeObjectURL(url);
+}
 
-
-/* ===== SCROLL REVEAL ANIMATION ===== */
+ 
 const srtop = ScrollReveal({
     origin: 'top',
     distance: '80px',
